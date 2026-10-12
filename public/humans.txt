@@ -1,0 +1,11 @@
+/* TEAM */
+Autor: Marcin Mazuro
+Rola: Data Engineer -> GCP Data Architect
+Kontakt: mazuromarcin [at] gmail.com
+GitHub: https://github.com/MarcinMazuro
+
+/* SITE */
+Stack: Next.js 16, React 19, Tailwind v4, Motion
+Hosting: Google Cloud Run (europe-west1), Firestore (eur3)
+Infrastruktura: Terraform, GitHub Actions + Workload Identity Federation, Cloud Build
+Kod: https://github.com/MarcinMazuro/marcinmazuro
