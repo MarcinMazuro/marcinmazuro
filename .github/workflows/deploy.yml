@@ -1,0 +1,63 @@
+name: Deploy na Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: marcinmazuro
+  REGION: europe-west1
+
+permissions:
+  contents: read
+  id-token: write # wymagane przez Workload Identity Federation
+
+jobs:
+  weryfikacja:
+    name: Lint i build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  wdrozenie:
+    name: Build obrazu i deploy
+    needs: weryfikacja
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/251571632782/locations/global/workloadIdentityPools/github/providers/github-oidc
+          service_account: github-deployer@marcinmazuro.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Cloud Build -> Cloud Run
+        run: |
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
+            --substitutions SHORT_SHA="${GITHUB_SHA::7}" \
+            --service-account "projects/$PROJECT_ID/serviceAccounts/251571632782-compute@developer.gserviceaccount.com"
+
+      - name: Adres wdrożonej usługi
+        run: |
+          URL=$(gcloud run services describe marcinmazuro-web \
+            --region "$REGION" --project "$PROJECT_ID" --format='value(status.url)')
+          echo "### Wdrożono: $URL" >> "$GITHUB_STEP_SUMMARY"
+
