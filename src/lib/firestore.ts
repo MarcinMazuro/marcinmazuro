@@ -1,23 +1,23 @@
 import { Firestore } from "@google-cloud/firestore";
 
-let instancja: Firestore | null = null;
+let instance: Firestore | null = null;
 
 /**
- * Połączenie z Firestore tworzone leniwie.
+ * Lazily created Firestore client.
  *
- * Nie wolno go inicjować na poziomie modułu: build w Cloud Build nie ma
- * poświadczeń i prerendering by się wywalił.
+ * Must not be created at module level: the Cloud Build container has no
+ * credentials and prerendering would fail.
  */
-export function baza(): Firestore {
-  if (!instancja) {
-    instancja = new Firestore({
+export function db(): Firestore {
+  if (!instance) {
+    instance = new Firestore({
       projectId: process.env.GOOGLE_CLOUD_PROJECT ?? "marcinmazuro",
       ignoreUndefinedProperties: true,
     });
   }
-  return instancja;
+  return instance;
 }
 
-export const KOLEKCJE = {
-  zgloszenia: "zgloszenia-kontaktowe",
+export const COLLECTIONS = {
+  contactMessages: "contact-messages",
 } as const;

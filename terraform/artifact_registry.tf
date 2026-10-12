@@ -1,9 +1,9 @@
 resource "google_artifact_registry_repository" "web" {
-  project       = var.projekt
+  project       = var.project
   location      = var.region
   repository_id = "web"
   format        = "DOCKER"
-  description   = "Obrazy aplikacji webowej"
+  description   = "Web application images"
 
-  depends_on = [google_project_service.wlaczone]
+  depends_on = [google_project_service.enabled]
 }

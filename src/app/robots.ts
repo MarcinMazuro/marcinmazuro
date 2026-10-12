@@ -1,15 +1,14 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Do premiery blokujemy cały ruch robotów.
+ * All crawlers are blocked until launch.
  *
- * Sam znacznik noindex w nagłówku nie wystarcza: część crawlerów pobiera
- * treść, zanim go przetworzy, a domena trafiła do publicznych logów
- * Certificate Transparency w momencie wystawienia certyfikatu - od tej chwili
- * jest regularnie skanowana.
+ * A noindex header alone is not enough: some crawlers fetch content before
+ * processing it, and the domain shows up in Certificate Transparency logs
+ * the moment a certificate is issued.
  *
- * NA PREMIERĘ: zmienić na allow "/", dopisać sitemap i zdjąć robots
- * z metadanych w layout.tsx.
+ * AT LAUNCH: switch to allow "/", add a sitemap and drop robots from the
+ * metadata in app/[lang]/layout.tsx.
  */
 export default function robots(): MetadataRoute.Robots {
   return {

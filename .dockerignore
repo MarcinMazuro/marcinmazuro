@@ -6,7 +6,7 @@ docs
 npm-debug.log*
 .env*.local
 README.md
-testy
+tests
 vitest.config.mts
 terraform
 .claude

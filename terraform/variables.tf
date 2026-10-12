@@ -1,23 +1,23 @@
-variable "projekt" {
-  description = "Identyfikator projektu GCP"
+variable "project" {
+  description = "GCP project ID"
   type        = string
   default     = "marcinmazuro"
 }
 
-variable "numer_projektu" {
-  description = "Numer projektu GCP, używany w Workload Identity Federation"
+variable "project_number" {
+  description = "GCP project number, used by Workload Identity Federation"
   type        = string
   default     = "251571632782"
 }
 
 variable "region" {
-  description = "Region usług. europe-central2 odpada: nie pozwala tworzyć mapowań domen w Cloud Run"
+  description = "Service region. europe-central2 is out: it does not allow Cloud Run domain mappings"
   type        = string
   default     = "europe-west1"
 }
 
-variable "repozytorium_github" {
-  description = "Repozytorium uprawnione do wdrożeń przez OIDC"
+variable "github_repository" {
+  description = "The only repository allowed to deploy via OIDC"
   type        = string
   default     = "MarcinMazuro/marcinmazuro"
 }

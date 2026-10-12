@@ -7,7 +7,7 @@ export default defineConfig({
   },
   esbuild: { jsx: "automatic" },
   test: {
-    include: ["testy/**/*.test.{ts,tsx}"],
+    include: ["tests/**/*.test.{ts,tsx}"],
     environment: "node",
   },
 });

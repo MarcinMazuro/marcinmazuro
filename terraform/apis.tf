@@ -1,23 +1,23 @@
 locals {
-  wlaczone_api = [
+  enabled_apis = [
     "run.googleapis.com",
     "cloudbuild.googleapis.com",
     "artifactregistry.googleapis.com",
     "firestore.googleapis.com",
     "iamcredentials.googleapis.com",
     "storage.googleapis.com",
-    # Tworzy domyślne konto Compute, na którym Cloud Build buduje i wdraża
+    # Creates the default Compute service account Cloud Build builds and deploys with
     "compute.googleapis.com",
   ]
 }
 
-resource "google_project_service" "wlaczone" {
-  for_each = toset(local.wlaczone_api)
+resource "google_project_service" "enabled" {
+  for_each = toset(local.enabled_apis)
 
-  project = var.projekt
+  project = var.project
   service = each.value
 
-  # Wyłączenie API przy usuwaniu zasobu Terraform potrafiłoby wyłączyć
-  # działającą produkcję, więc tego nie robimy
+  # Disabling an API when a Terraform resource is removed could take down
+  # production, so we never do it
   disable_on_destroy = false
 }

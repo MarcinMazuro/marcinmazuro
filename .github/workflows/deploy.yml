@@ -1,4 +1,4 @@
-name: Deploy na Cloud Run
+name: Deploy to Cloud Run
 
 on:
   push:
@@ -15,11 +15,11 @@ env:
 
 permissions:
   contents: read
-  id-token: write # wymagane przez Workload Identity Federation
+  id-token: write # required by Workload Identity Federation
 
 jobs:
-  weryfikacja:
-    name: Lint i build
+  verify:
+    name: Lint, test, build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -32,9 +32,9 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  wdrozenie:
-    name: Build obrazu i deploy
-    needs: weryfikacja
+  deploy:
+    name: Build image and deploy
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -55,9 +55,8 @@ jobs:
             --substitutions SHORT_SHA="${GITHUB_SHA::7}" \
             --service-account "projects/$PROJECT_ID/serviceAccounts/251571632782-compute@developer.gserviceaccount.com"
 
-      - name: Adres wdrożonej usługi
+      - name: Deployed service URL
         run: |
           URL=$(gcloud run services describe marcinmazuro-web \
             --region "$REGION" --project "$PROJECT_ID" --format='value(status.url)')
-          echo "### Wdrożono: $URL" >> "$GITHUB_STEP_SUMMARY"
-
+          echo "### Deployed: $URL" >> "$GITHUB_STEP_SUMMARY"

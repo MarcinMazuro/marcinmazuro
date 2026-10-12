@@ -10,11 +10,11 @@ terraform {
 
   backend "gcs" {
     bucket = "marcinmazuro-tfstate"
-    prefix = "produkcja"
+    prefix = "production"
   }
 }
 
 provider "google" {
-  project = var.projekt
+  project = var.project
   region  = var.region
 }

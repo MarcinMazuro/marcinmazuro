@@ -1,14 +1,14 @@
-output "adres_uslugi" {
-  description = "Adres Cloud Run, pod którym stoi aplikacja"
+output "service_url" {
+  description = "Cloud Run URL serving the app"
   value       = google_cloud_run_v2_service.web.uri
 }
 
-output "konto_aplikacji" {
-  description = "Konto usługi, na którym działa aplikacja"
-  value       = google_service_account.aplikacja.email
+output "app_service_account" {
+  description = "Service account the app runs as"
+  value       = google_service_account.web_app.email
 }
 
-output "dostawca_wif" {
-  description = "Dostawca tożsamości dla GitHub Actions"
+output "wif_provider" {
+  description = "Identity provider for GitHub Actions"
   value       = google_iam_workload_identity_pool_provider.github.name
 }

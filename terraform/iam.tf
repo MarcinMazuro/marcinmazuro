@@ -1,19 +1,19 @@
-# Wdrożenia z GitHuba bez trzymania klucza JSON w repozytorium
-resource "google_service_account" "wdrozenia" {
-  project      = var.projekt
+# Deployments from GitHub without keeping a JSON key in the repository
+resource "google_service_account" "deployer" {
+  project      = var.project
   account_id   = "github-deployer"
-  display_name = "Deploy z GitHub Actions"
+  display_name = "Deploy from GitHub Actions"
 }
 
 locals {
-  role_wdrozeniowe = [
+  deployer_roles = [
     "roles/cloudbuild.builds.editor",
     "roles/storage.admin",
     "roles/iam.serviceAccountUser",
     "roles/run.viewer",
   ]
 
-  role_budowania = [
+  builder_roles = [
     "roles/run.admin",
     "roles/iam.serviceAccountUser",
     "roles/artifactregistry.writer",
@@ -22,33 +22,33 @@ locals {
   ]
 }
 
-resource "google_project_iam_member" "wdrozenia" {
-  for_each = toset(local.role_wdrozeniowe)
+resource "google_project_iam_member" "deployer" {
+  for_each = toset(local.deployer_roles)
 
-  project = var.projekt
+  project = var.project
   role    = each.value
-  member  = "serviceAccount:${google_service_account.wdrozenia.email}"
+  member  = "serviceAccount:${google_service_account.deployer.email}"
 }
 
-# Cloud Build buduje obraz i wdraża usługę na domyślnym koncie Compute
-resource "google_project_iam_member" "budowanie" {
-  for_each = toset(local.role_budowania)
+# Cloud Build builds the image and deploys the service as the default Compute account
+resource "google_project_iam_member" "builder" {
+  for_each = toset(local.builder_roles)
 
-  project = var.projekt
+  project = var.project
   role    = each.value
-  member  = "serviceAccount:${var.numer_projektu}-compute@developer.gserviceaccount.com"
+  member  = "serviceAccount:${var.project_number}-compute@developer.gserviceaccount.com"
 
-  depends_on = [google_project_service.wlaczone]
+  depends_on = [google_project_service.enabled]
 }
 
 resource "google_iam_workload_identity_pool" "github" {
-  project                   = var.projekt
+  project                   = var.project
   workload_identity_pool_id = "github"
   display_name              = "GitHub Actions"
 }
 
 resource "google_iam_workload_identity_pool_provider" "github" {
-  project                            = var.projekt
+  project                            = var.project
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
   workload_identity_pool_provider_id = "github-oidc"
   display_name                       = "GitHub OIDC"
@@ -58,17 +58,17 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.repository" = "assertion.repository"
   }
 
-  # Bez tego warunku token z dowolnego repozytorium na GitHubie
-  # mógłby wdrażać na tę produkcję
-  attribute_condition = "assertion.repository=='${var.repozytorium_github}'"
+  # Without this condition a token from any repository on GitHub
+  # could deploy to this project
+  attribute_condition = "assertion.repository=='${var.github_repository}'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 }
 
-resource "google_service_account_iam_member" "github_do_konta" {
-  service_account_id = google_service_account.wdrozenia.name
+resource "google_service_account_iam_member" "github_to_deployer" {
+  service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/projects/${var.numer_projektu}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/attribute.repository/${var.repozytorium_github}"
+  member             = "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/attribute.repository/${var.github_repository}"
 }

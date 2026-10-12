@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /*
-  Progi dla dużych ekranów w rem, tak jak wbudowane w Tailwinda.
-  Podane w pikselach przegrywają kaskadę z regułą 2xl.
+  Large-screen breakpoints in rem, like Tailwind's built-in ones.
+  Pixel values would lose the cascade to the 2xl rule.
 */
 @theme {
   --breakpoint-3xl: 120rem;
@@ -10,106 +10,106 @@
 }
 
 /*
-  Ciemny motyw „konsoli". Role kolorów są zmiennymi, żeby kolorystykę
-  dało się zmienić w jednym miejscu.
+  Dark "console" theme. Colour roles are variables so the whole palette
+  can be changed in one place.
 */
 @layer base {
   html {
-    --p-tlo: #08090b;
-    --p-powierzchnia: #0f1216;
-    --p-powierzchnia-mocna: #151a20;
-    --p-linia: #1f2730;
-    --p-tekst: #e6edf3;
-    --p-tekst-miekki: #8b98a5;
-    --p-akcent: #7ee787;
-    --p-akcent-2: #79c0ff;
-    --p-ostrzezenie: #f0b72f;
-    --p-blad: #ff7b72;
+    --c-canvas: #08090b;
+    --c-surface: #0f1216;
+    --c-surface-strong: #151a20;
+    --c-line: #1f2730;
+    --c-fg: #e6edf3;
+    --c-fg-muted: #8b98a5;
+    --c-accent: #7ee787;
+    --c-accent-2: #79c0ff;
+    --c-warning: #f0b72f;
+    --c-danger: #ff7b72;
     color-scheme: dark;
   }
 
   body {
-    background-color: var(--p-tlo);
-    color: var(--p-tekst);
+    background-color: var(--c-canvas);
+    color: var(--c-fg);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--p-akcent) 35%, transparent);
+    background: color-mix(in oklab, var(--c-accent) 35%, transparent);
   }
 }
 
 @theme inline {
-  --color-tlo: var(--p-tlo);
-  --color-powierzchnia: var(--p-powierzchnia);
-  --color-powierzchnia-mocna: var(--p-powierzchnia-mocna);
-  --color-linia: var(--p-linia);
-  --color-tekst: var(--p-tekst);
-  --color-tekst-miekki: var(--p-tekst-miekki);
-  --color-akcent: var(--p-akcent);
-  --color-akcent-2: var(--p-akcent-2);
-  --color-ostrzezenie: var(--p-ostrzezenie);
-  --color-blad: var(--p-blad);
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-strong: var(--c-surface-strong);
+  --color-line: var(--c-line);
+  --color-fg: var(--c-fg);
+  --color-fg-muted: var(--c-fg-muted);
+  --color-accent: var(--c-accent);
+  --color-accent-2: var(--c-accent-2);
+  --color-warning: var(--c-warning);
+  --color-danger: var(--c-danger);
 
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
-/* Siatka w tle jak na papierze milimetrowym, gasnąca ku dołowi */
-.tlo-siatka {
+/* Graph-paper grid in the background, fading out towards the bottom */
+.bg-grid {
   background-image:
-    linear-gradient(to right, var(--p-linia) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--p-linia) 1px, transparent 1px);
+    linear-gradient(to right, var(--c-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-line) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
 }
 
-/* Migający kursor terminala */
-.kursor::after {
+/* Blinking terminal cursor */
+.cursor-blink::after {
   content: "";
   display: inline-block;
   width: 0.55em;
   height: 1.1em;
   margin-left: 2px;
   vertical-align: text-bottom;
-  background: var(--p-akcent);
-  animation: mrugniecie 1.1s steps(1) infinite;
+  background: var(--c-accent);
+  animation: blink 1.1s steps(1) infinite;
 }
-@keyframes mrugniecie {
+@keyframes blink {
   50% {
     opacity: 0;
   }
 }
 
-/* Przejście między podstronami, jak na agnieszkabielawa.pl */
-::view-transition-old(.strona) {
-  animation: 160ms ease-in both strona-wyjscie;
+/* Page transitions, same as on agnieszkabielawa.pl */
+::view-transition-old(.page) {
+  animation: 160ms ease-in both page-out;
 }
-::view-transition-new(.strona) {
-  animation: 320ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both strona-wejscie;
+::view-transition-new(.page) {
+  animation: 320ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both page-in;
 }
-@keyframes strona-wyjscie {
+@keyframes page-out {
   to {
     opacity: 0;
     filter: blur(4px);
   }
 }
-@keyframes strona-wejscie {
+@keyframes page-in {
   from {
     opacity: 0;
     transform: translateY(14px);
     filter: blur(4px);
   }
 }
-::view-transition-group(nawigacja) {
+::view-transition-group(navigation) {
   animation: none;
   z-index: 100;
 }
-::view-transition-old(nawigacja) {
+::view-transition-old(navigation) {
   display: none;
 }
-::view-transition-new(nawigacja) {
+::view-transition-new(navigation) {
   animation: none;
 }
 
@@ -119,24 +119,24 @@
   ::view-transition-new(*) {
     animation: none !important;
   }
-  .kursor::after {
+  .cursor-blink::after {
     animation: none;
   }
 }
 
-/* CV do druku: jasne tło, bez nawigacji, bez ozdobników */
+/* Printable resume: light background, no navigation, no decoration */
 @media print {
   html {
-    --p-tlo: #fff;
-    --p-powierzchnia: #fff;
-    --p-powierzchnia-mocna: #fff;
-    --p-linia: #d0d7de;
-    --p-tekst: #111;
-    --p-tekst-miekki: #444;
-    --p-akcent: #1a7f37;
-    --p-akcent-2: #0969da;
+    --c-canvas: #fff;
+    --c-surface: #fff;
+    --c-surface-strong: #fff;
+    --c-line: #d0d7de;
+    --c-fg: #111;
+    --c-fg-muted: #444;
+    --c-accent: #1a7f37;
+    --c-accent-2: #0969da;
   }
-  .bez-druku {
+  .no-print {
     display: none !important;
   }
   @page {

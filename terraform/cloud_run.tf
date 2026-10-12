@@ -1,35 +1,35 @@
-# Konto, na którym działa aplikacja - tylko dostęp do Firestore
-resource "google_service_account" "aplikacja" {
-  project      = var.projekt
-  account_id   = "aplikacja-web"
-  display_name = "Aplikacja webowa na Cloud Run"
+# Identity the app runs as - Firestore access only
+resource "google_service_account" "web_app" {
+  project      = var.project
+  account_id   = "web-app"
+  display_name = "Web app on Cloud Run"
 }
 
-resource "google_project_iam_member" "aplikacja_firestore" {
-  project = var.projekt
+resource "google_project_iam_member" "web_app_firestore" {
+  project = var.project
   role    = "roles/datastore.user"
-  member  = "serviceAccount:${google_service_account.aplikacja.email}"
+  member  = "serviceAccount:${google_service_account.web_app.email}"
 }
 
 resource "google_cloud_run_v2_service" "web" {
-  project             = var.projekt
+  project             = var.project
   name                = "marcinmazuro-web"
   location            = var.region
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
 
   template {
-    service_account = google_service_account.aplikacja.email
+    service_account = google_service_account.web_app.email
 
     scaling {
-      # Portfolio nie ma ruchu konwersyjnego jak sklep - zimny start
-      # jest akceptowalny, a usługa bez ruchu nic nie kosztuje
+      # A portfolio has no conversion-critical traffic like a shop - a cold
+      # start is acceptable, and an idle service costs nothing
       min_instance_count = 0
       max_instance_count = 3
     }
 
     containers {
-      # Obraz startowy Google; prawdziwy podmienia pipeline przy wdrożeniu
+      # Google's starter image; the pipeline swaps in the real one on deploy
       image = "us-docker.pkg.dev/cloudrun/container/hello"
 
       ports {
@@ -47,8 +47,8 @@ resource "google_cloud_run_v2_service" "web" {
   }
 
   lifecycle {
-    # Obraz podmienia pipeline przy każdym wdrożeniu. Gdyby Terraform
-    # nim zarządzał, cofałby produkcję do wersji z pliku.
+    # The pipeline replaces the image on every deploy. If Terraform managed
+    # it, it would roll production back to the version in this file.
     ignore_changes = [
       template[0].containers[0].image,
       template[0].revision,
@@ -59,11 +59,11 @@ resource "google_cloud_run_v2_service" "web" {
     ]
   }
 
-  depends_on = [google_project_service.wlaczone]
+  depends_on = [google_project_service.enabled]
 }
 
-resource "google_cloud_run_v2_service_iam_member" "publiczny" {
-  project  = var.projekt
+resource "google_cloud_run_v2_service_iam_member" "public" {
+  project  = var.project
   location = var.region
   name     = google_cloud_run_v2_service.web.name
   role     = "roles/run.invoker"
