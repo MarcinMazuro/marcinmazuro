@@ -1,6 +1,8 @@
 # Stan projektu
 
-Ostatnia aktualizacja: 2026-10-12.
+Ostatnia aktualizacja: 2026-10-12. Na produkcji: `fe9ad79`,
+https://marcinmazuro-web-zipuebeujq-ew.a.run.app (repo publiczne
+https://github.com/MarcinMazuro/marcinmazuro).
 
 ## Zrobione
 - Projekt GCP `marcinmazuro`, billing, kubełek stanu Terraform.
@@ -11,11 +13,15 @@ Ostatnia aktualizacja: 2026-10-12.
 - 18 testów (Vitest), lint, build.
 
 ## Czeka
-1. Repozytorium `MarcinMazuro/marcinmazuro` na GitHubie + pierwszy push
-   (wtedy CI zbuduje i wdroży prawdziwy obraz).
-2. Prawdziwe treści w `src/lib/dane.ts` (doświadczenie, projekty, LinkedIn).
-3. Domena (Cloud DNS + mapowanie w europe-west1, wzór w ../AgnieszkaBielawa/terraform/dns.tf).
-4. Wersja angielska.
-5. Rezerwacja rozmów dla klientów (wzór: `src/lib/sklep/terminy.ts`,
+1. Prawdziwe treści w `src/lib/dane.ts` (doświadczenie, projekty, LinkedIn).
+2. Domena (Cloud DNS + mapowanie w europe-west1, wzór w ../AgnieszkaBielawa/terraform/dns.tf).
+3. Wersja angielska.
+4. Rezerwacja rozmów dla klientów (wzór: `src/lib/sklep/terminy.ts`,
    `rezerwacje.ts` u Agnieszki) + powiadomienia mailem.
-6. Premiera: zdjąć noindex/Disallow, sitemap.
+5. Premiera: zdjąć noindex/Disallow, sitemap.
+
+## Uwagi
+- Cloud Build bez `machineType`: nowy projekt nie ma limitu na E2_HIGHCPU_8
+  (FAILED_PRECONDITION). Można poprosić o limit, jeśli build będzie za wolny
+  (teraz ok. 4-5 min).
+- `public/` musi mieć choć jeden plik w gicie, inaczej Dockerfile pada na COPY.
